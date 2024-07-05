@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs for {{ service_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Logs for {{ service_name }}</h1>
+            <div class="search-container">
+                <input type="text" id="searchBar" placeholder="Search services..." oninput="searchServices()">
+                <img src="{{ url_for('static', filename='search-icon.png') }}" alt="Search Icon" class="search-icon">
+                <div id="dropdown"></div>
+            </div>
+        </div>
+        <div id="logs">
+            {% for log in logs %}
+                <p>{{ log }}</p>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+    <script>
+        function searchServices() {
+            let query = document.getElementById('searchBar').value;
+            let dropdown = document.getElementById('dropdown');
+            if (query === '') {
+                dropdown.innerHTML = '';
+                dropdown.style.display = 'none';
+            } else {
+                fetch('/search?q=' + query)
+                    .then(response => response.json())
+                    .then(data => {
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'block';
+                        data.forEach(service => {
+                            let option = document.createElement('div');
+                            option.className = 'dropdown-item';
+                            option.innerHTML = service;
+                            option.onclick = function() {
+                                window.location.href = '/logs/' + service;
+                            };
+                            dropdown.appendChild(option);
+                        });
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
